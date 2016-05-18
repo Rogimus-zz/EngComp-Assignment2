@@ -14,6 +14,7 @@ typedef struct {
      int reachable;
      int mincost;
      int isfinal;
+     int cell_correct;
 } cell_t;
 
 typedef struct {
@@ -22,6 +23,7 @@ typedef struct {
      int rows;
      int cols;
      int final_cost;
+     int correct_cells;
 } maze_t;
 
 
@@ -41,6 +43,8 @@ main(int argc, char *argv[]) {
 
      read_maze(&M);
      print_stage_one(&M);
+     printf("%d", M.correct_cells);
+
      assign_reachability(&M);
      print_stage_two(&M);
      print_stage_three(&M);
@@ -56,12 +60,14 @@ read_maze(maze_t *M) {
      int i,j;
      char ch;
      i=j=0;
+     M->correct_cells = 0;
      while(scanf("%c",&ch)==1) {
           M->maze_A[i][j].type=ch;
           M->maze_A[i][j].reachable=0;
           M->maze_A[i][j].mincost=INT_MAX;
           M->final_cost = INT_MAX;
           M->maze_A[i][j].isfinal=0;
+          M->maze_A[i][j].cell_correct = 0;
           if(ch == NEWLINE) { 
                i++;
                M->cols=j;
@@ -69,7 +75,11 @@ read_maze(maze_t *M) {
           } else {
                j++;
           }
+          if(ch == 46){
+               M->correct_cells++;
+          }
      }
+     printf("%d", M->correct_cells);
      M->rows=i;
      M->hassoln=0;
 }
@@ -105,11 +115,70 @@ assign_reachability(maze_t *M) {
       if(M->maze_A[1][j].type == 46) {
         M->maze_A[1][j].reachable = 1;
         M->maze_A[1][j].mincost = 1;
-        solve_maze(M, 1, j);
+        /* solve_maze(M, 1, j); */
       }
     }
   }
 
+  while(M->correct_cells){
+       for(i=1; i<M->rows; i++){
+            for(j=0; j<M->cols; j++){
+                 if(M->maze_A[i][j].type == 46 && M->maze_A[i][j].mincost<INT_MAX){
+                      if(j>0){
+                           if (M->maze_A[i][j].mincost - M->maze_A[i][j-1].mincost == 1 || M->maze_A[i][j].mincost - M->maze_A[i][j-1].mincost == 0){
+                                M->maze_A[i][j].cell_correct = 1;
+                                M->maze_A[i][j].reachable = 1;
+                           } else if(M->maze_A[i][j].mincost>M->maze_A[i][j-1].mincost){
+                                M->maze_A[i][j].mincost = M->maze_A[i][j-1].mincost +1;
+                           } else {
+                                M->maze_A[i][j+1].mincost = M->maze_A[i][j].mincost +1;
+                           }
+                      }
+
+                      if(i<M->rows){
+                           if (M->maze_A[i][j].mincost - M->maze_A[i+1][j].mincost == 1 || M->maze_A[i][j].mincost - M->maze_A[i+1][j].mincost == 0){
+                                M->maze_A[i][j].cell_correct = 1;
+                                M->maze_A[i][j].reachable = 1;
+                           } else if(M->maze_A[i][j].mincost>M->maze_A[i+1][j].mincost){
+                                M->maze_A[i][j].mincost = M->maze_A[i+1][j].mincost +1;
+                           } else {
+                                M->maze_A[i+1][j].mincost = M->maze_A[i][j].mincost +1;
+                           }
+                      }
+                      if(j<M->cols){
+                           if (M->maze_A[i][j].mincost - M->maze_A[i][j+1].mincost == 1 || M->maze_A[i][j].mincost - M->maze_A[i][j+1].mincost == 0){
+                                M->maze_A[i][j].cell_correct = 1;
+                                M->maze_A[i][j].reachable = 1;
+                           } else if(M->maze_A[i][j].mincost>M->maze_A[i][j+1].mincost){
+                                M->maze_A[i][j].mincost = M->maze_A[i][j+1].mincost +1;
+                           } else {
+                                M->maze_A[i][j+1].mincost = M->maze_A[i][j].mincost +1;
+                           }
+                      }
+
+                      if(i>0){
+                           if (M->maze_A[i][j].mincost - M->maze_A[i-1][j].mincost == 1 || M->maze_A[i][j].mincost - M->maze_A[i-1][j].mincost == 0){
+                                M->maze_A[i][j].cell_correct = 1;
+                                M->maze_A[i][j].reachable = 1;
+                           } else if(M->maze_A[i][j].mincost>M->maze_A[i-1][j].mincost){
+                                M->maze_A[i][j].mincost = M->maze_A[i-1][j].mincost +1;
+                           } else {
+                                M->maze_A[i-1][j].mincost = M->maze_A[i][j].mincost +1;
+                           }
+                      }
+                      if(M->maze_A[i][j].cell_correct){
+                           M->correct_cells--;
+                      }
+
+                      printf("%d", M->correct_cells);
+                      if(!M->correct_cells){
+                           goto TAG;
+                      }
+                 }
+            }
+       }
+  }
+TAG: 
   /* determine hassoln */
   i = M->rows-1;
   for(j=0; j<=M->cols; j++) {
@@ -122,98 +191,98 @@ assign_reachability(maze_t *M) {
   }
 }
 
-void
-solve_maze(maze_t *M, int i, int j) {
+/* void */
+/* solve_maze(maze_t *M, int i, int j) { */
 
 
-  /* /\* check min costs *\/ */
+/*   /\* /\\* check min costs *\\/ *\/ */
 
-  /* if(j>0 && M->maze_A[i][j-1].mincost> M->maze_A[i][j].mincost) { */
-  /*   M->maze_A[i][j-1].mincost = M->maze_A[i][j].mincost + 1; */
-  /* } else */
-  if(j>0 && M->maze_A[i][j].mincost > M->maze_A[i][j-1].mincost){
-    M->maze_A[i][j].mincost = M->maze_A[i][j-1].mincost +1;
-    solve_maze(M,i,j-1);
-  }
-  /* if(i<M->rows-1 && M->maze_A[i+1][j].mincost>M->maze_A[i][j].mincost) { */
-  /*   M->maze_A[i+1][j].mincost = M->maze_A[i][j].mincost + 1; */
-  /* } else */
-  if(i<(M->rows - 1) && M->maze_A[i][j].mincost>M->maze_A[i+1][j].mincost){
-    M->maze_A[i][j].mincost = M->maze_A[i+1][j].mincost +1;
-    solve_maze(M,i+1,j);
-  }
-  /* if(i>0 && M->maze_A[i-1][j].mincost>M->maze_A[i][j].mincost) { */
-  /*   M->maze_A[i-1][j].mincost = M->maze_A[i][j].mincost + 1; */
-  /* } else */
-  if(i>0 && M->maze_A[i][j].mincost>M->maze_A[i-1][j].mincost ){
-    M->maze_A[i][j].mincost = M->maze_A[i-1][j].mincost +1;
-    solve_maze(M,i-1,j);
-  }
-  /* if(j<M->cols-1 && M->maze_A[i][j+1].mincost>M->maze_A[i][j].mincost) { */
-  /*   M->maze_A[i][j+1].mincost = M->maze_A[i][j].mincost + 1; */
-  /* } else */
-  if(j<(M->cols-1) && M->maze_A[i][j].mincost> M->maze_A[i][j+1].mincost){
-    M->maze_A[i][j].mincost = M->maze_A[i][j+1].mincost +1;
-    solve_maze(M, i, j+1);
-  }
-
-
-  /*follow a path */
-  if(j>0 && M->maze_A[i][j-1].type == 46 && !M->maze_A[i][j-1].reachable) {
-    M->maze_A[i][j-1].reachable = 1;
-    if(M->maze_A[i][j-1].mincost>M->maze_A[i][j].mincost) {
-      M->maze_A[i][j-1].mincost = M->maze_A[i][j].mincost + 1;
-    }
-    solve_maze(M,i,j-1);
-  } else if(i>0 && M->maze_A[i-1][j].type == 46 && !M->maze_A[i-1][j].reachable) {
-    M->maze_A[i-1][j].reachable = 1;
-    if(M->maze_A[i-1][j].mincost>M->maze_A[i][j].mincost) {
-      M->maze_A[i-1][j].mincost = M->maze_A[i][j].mincost + 1;
-    }
-    solve_maze(M,i-1,j);
-  } else if(i<M->rows-1 && M->maze_A[i+1][j].type == 46 && !M->maze_A[i+1][j].reachable) {
-    M->maze_A[i+1][j].reachable = 1;
-    if(M->maze_A[i+1][j].mincost>M->maze_A[i][j].mincost) {
-      M->maze_A[i+1][j].mincost = M->maze_A[i][j].mincost + 1;
-
-    }
-    solve_maze(M, i+1, j);
-  } else if(j<M->cols-1 && M->maze_A[i][j+1].type == 46 && !M->maze_A[i][j+1].reachable) {
-    M->maze_A[i][j+1].reachable = 1;
-    if(M->maze_A[i][j+1].mincost>M->maze_A[i][j].mincost) {
-      M->maze_A[i][j+1].mincost = M->maze_A[i][j].mincost + 1;
-    }
-    solve_maze(M,i,j+1);
-  }
+/*   /\* if(j>0 && M->maze_A[i][j-1].mincost> M->maze_A[i][j].mincost) { *\/ */
+/*   /\*   M->maze_A[i][j-1].mincost = M->maze_A[i][j].mincost + 1; *\/ */
+/*   /\* } else *\/ */
+/*   if(j>0 && M->maze_A[i][j].mincost > M->maze_A[i][j-1].mincost){ */
+/*     M->maze_A[i][j].mincost = M->maze_A[i][j-1].mincost +1; */
+/*     solve_maze(M,i,j-1); */
+/*   } */
+/*   /\* if(i<M->rows-1 && M->maze_A[i+1][j].mincost>M->maze_A[i][j].mincost) { *\/ */
+/*   /\*   M->maze_A[i+1][j].mincost = M->maze_A[i][j].mincost + 1; *\/ */
+/*   /\* } else *\/ */
+/*   if(i<(M->rows - 1) && M->maze_A[i][j].mincost>M->maze_A[i+1][j].mincost){ */
+/*     M->maze_A[i][j].mincost = M->maze_A[i+1][j].mincost +1; */
+/*     solve_maze(M,i+1,j); */
+/*   } */
+/*   /\* if(i>0 && M->maze_A[i-1][j].mincost>M->maze_A[i][j].mincost) { *\/ */
+/*   /\*   M->maze_A[i-1][j].mincost = M->maze_A[i][j].mincost + 1; *\/ */
+/*   /\* } else *\/ */
+/*   if(i>0 && M->maze_A[i][j].mincost>M->maze_A[i-1][j].mincost ){ */
+/*     M->maze_A[i][j].mincost = M->maze_A[i-1][j].mincost +1; */
+/*     solve_maze(M,i-1,j); */
+/*   } */
+/*   /\* if(j<M->cols-1 && M->maze_A[i][j+1].mincost>M->maze_A[i][j].mincost) { *\/ */
+/*   /\*   M->maze_A[i][j+1].mincost = M->maze_A[i][j].mincost + 1; *\/ */
+/*   /\* } else *\/ */
+/*   if(j<(M->cols-1) && M->maze_A[i][j].mincost> M->maze_A[i][j+1].mincost){ */
+/*     M->maze_A[i][j].mincost = M->maze_A[i][j+1].mincost +1; */
+/*     solve_maze(M, i, j+1); */
+/*   } */
 
 
-  /* backtrack if dead end */
-  if(j<M->cols && M->maze_A[i][j+1].type == 46 && M->maze_A[i][j+1].reachable <= 3) {
-    M->maze_A[i][j+1].reachable++;
-    if(M->maze_A[i][j+1].mincost > M->maze_A[i][j].mincost){
-      M->maze_A[i][j+1].mincost = M->maze_A[i][j].mincost +1;
-    }
-    solve_maze(M,i,j+1);
-  } else if(i<M->rows && M->maze_A[i+1][j].type == 46 && M->maze_A[i+1][j].reachable <= 3) {
-    M->maze_A[i+1][j].reachable++;
-    if(M->maze_A[i+1][j].mincost > M->maze_A[i][j].mincost){
-      M->maze_A[i+1][j].mincost = M->maze_A[i][j].mincost +1;
-    }
-    solve_maze(M, i+1, j);
-  } else if(j>0 && M->maze_A[i][j-1].type == 46 && M->maze_A[i][j-1].reachable <= 3) {M->maze_A[i][j-1].reachable++;
-    if(M->maze_A[i][j-1].mincost > M->maze_A[i][j].mincost){
-      M->maze_A[i][j-1].mincost = M->maze_A[i][j].mincost +1;
-    }
-    solve_maze(M,i,j-1);
-  }
-  else if(i>0 && M->maze_A[i-1][j].type == 46 && M->maze_A[i-1][j].reachable <=3 ) {
-    M->maze_A[i-1][j].reachable++;
-    if(M->maze_A[i-1][j].mincost > M->maze_A[i][j].mincost){
-      M->maze_A[i-1][j].mincost = M->maze_A[i][j].mincost +1;
-    }
-    solve_maze(M,i-1,j);
-  }
-}
+/*   /\*follow a path *\/ */
+/*   if(j>0 && M->maze_A[i][j-1].type == 46 && !M->maze_A[i][j-1].reachable) { */
+/*     M->maze_A[i][j-1].reachable = 1; */
+/*     if(M->maze_A[i][j-1].mincost>M->maze_A[i][j].mincost) { */
+/*       M->maze_A[i][j-1].mincost = M->maze_A[i][j].mincost + 1; */
+/*     } */
+/*     solve_maze(M,i,j-1); */
+/*   } else if(i>0 && M->maze_A[i-1][j].type == 46 && !M->maze_A[i-1][j].reachable) { */
+/*     M->maze_A[i-1][j].reachable = 1; */
+/*     if(M->maze_A[i-1][j].mincost>M->maze_A[i][j].mincost) { */
+/*       M->maze_A[i-1][j].mincost = M->maze_A[i][j].mincost + 1; */
+/*     } */
+/*     solve_maze(M,i-1,j); */
+/*   } else if(i<M->rows-1 && M->maze_A[i+1][j].type == 46 && !M->maze_A[i+1][j].reachable) { */
+/*     M->maze_A[i+1][j].reachable = 1; */
+/*     if(M->maze_A[i+1][j].mincost>M->maze_A[i][j].mincost) { */
+/*       M->maze_A[i+1][j].mincost = M->maze_A[i][j].mincost + 1; */
+
+/*     } */
+/*     solve_maze(M, i+1, j); */
+/*   } else if(j<M->cols-1 && M->maze_A[i][j+1].type == 46 && !M->maze_A[i][j+1].reachable) { */
+/*     M->maze_A[i][j+1].reachable = 1; */
+/*     if(M->maze_A[i][j+1].mincost>M->maze_A[i][j].mincost) { */
+/*       M->maze_A[i][j+1].mincost = M->maze_A[i][j].mincost + 1; */
+/*     } */
+/*     solve_maze(M,i,j+1); */
+/*   } */
+
+
+/*   /\* backtrack if dead end *\/ */
+/*   if(j<M->cols && M->maze_A[i][j+1].type == 46 && M->maze_A[i][j+1].reachable <= 3) { */
+/*     M->maze_A[i][j+1].reachable++; */
+/*     if(M->maze_A[i][j+1].mincost > M->maze_A[i][j].mincost){ */
+/*       M->maze_A[i][j+1].mincost = M->maze_A[i][j].mincost +1; */
+/*     } */
+/*     solve_maze(M,i,j+1); */
+/*   } else if(i<M->rows && M->maze_A[i+1][j].type == 46 && M->maze_A[i+1][j].reachable <= 3) { */
+/*     M->maze_A[i+1][j].reachable++; */
+/*     if(M->maze_A[i+1][j].mincost > M->maze_A[i][j].mincost){ */
+/*       M->maze_A[i+1][j].mincost = M->maze_A[i][j].mincost +1; */
+/*     } */
+/*     solve_maze(M, i+1, j); */
+/*   } else if(j>0 && M->maze_A[i][j-1].type == 46 && M->maze_A[i][j-1].reachable <= 3) {M->maze_A[i][j-1].reachable++; */
+/*     if(M->maze_A[i][j-1].mincost > M->maze_A[i][j].mincost){ */
+/*       M->maze_A[i][j-1].mincost = M->maze_A[i][j].mincost +1; */
+/*     } */
+/*     solve_maze(M,i,j-1); */
+/*   } */
+/*   else if(i>0 && M->maze_A[i-1][j].type == 46 && M->maze_A[i-1][j].reachable <=3 ) { */
+/*     M->maze_A[i-1][j].reachable++; */
+/*     if(M->maze_A[i-1][j].mincost > M->maze_A[i][j].mincost){ */
+/*       M->maze_A[i-1][j].mincost = M->maze_A[i][j].mincost +1; */
+/*     } */
+/*     solve_maze(M,i-1,j); */
+/*   } */
+/* } */
 /* void */
 /* assign_reachability(maze_t *M) { */
 /*   int i,j,k,l; */
