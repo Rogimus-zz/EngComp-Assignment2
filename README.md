@@ -1,5 +1,5 @@
 # COMP20005 Assignment 2
-This was my solution to the second major solution of COMP20005 - Engineering Computation at UniMelb. [Despite the name it was a mandatory (and thoroughly enjoyable) course for all CS majors.] Unfortunately I'm not sure that I can find the Spec for this assignment, but the basics were something of the following:
+This was my solution to the second major assignment of COMP20005 - Engineering Computation at UniMelb in Semester 1 2016. [Despite the name it was a mandatory (and thoroughly enjoyable) course for all CS majors.] Unfortunately I'm not sure that I can find the Spec for this assignment, but the basics were something of the following:
 * your program was fed a *valid* maze (valid meaning it had at least one entry in the first row, and at least one exit in the last row -- existence of a path to any exit was not necessary). See the the test text files in this repo for examples of how they'd be input.
 * there were four stages that your program had to output
   - Stage 1: cannot remember but I believe it may have been just reoutputting the maze in a nicer looking format, and finding the the size of the maze.
