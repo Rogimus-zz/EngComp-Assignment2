@@ -1,12 +1,14 @@
 # COMP20005 Assignment 2
-This was my solution to the second major solution of COMP20005 - Engineering Computation at UniMelb. [Despite the name it was a mandatory (and thoroughly enjoyable) course for all CS majors.]  Unfortunately I'm not sure that I can find the Spec for this assignment, but the basics were something of the following:
+This was my solution to the second major solution of COMP20005 - Engineering Computation at UniMelb. [Despite the name it was a mandatory (and thoroughly enjoyable) course for all CS majors.] Unfortunately I'm not sure that I can find the Spec for this assignment, but the basics were something of the following:
 * your program was fed a *valid* maze (valid meaning it had at least one entry in the first row, and at least one exit in the last row -- existence of a path to any exit was not necessary). See the the test text files in this repo for examples of how they'd be input.
 * there were four stages that your program had to output
   - Stage 1: cannot remember but I believe it may have been just reoutputting the maze in a nicer looking format, and finding the the size of the maze.
   - Stage 2: Highlighting any place in the maze that was reachable from an entry with a "++", and instead using a "--" for any place that was unreachable. Also check, and state whether the maze has a solution. 
   - Stage 3: Check and display the path length counting every 2 squares, ensuring that if a place was reachable in multiple different ways, the *smallest* lenght was used. See below for an example output
   - Stage 4: Find the shortest path and display it. If there was more than one path then my program would pick the left most path (check the order of the `if` statements in `label_final_path` starting on line 222)
-  
+
+**N.B.** `redomyass2.c` is the final file - `myass2.c` was a terrible, terrible first attempt which I simply left for...historical reasons.
+Also going through this code I've realised how shockingly under-commented it was. Luckily this project is almost certainly of zero interest to anyone functionally (perhaps not aesthically) and thus I feel it sufficient to simply state that I now comment more thoroughly on projects such as this.
 ## Example Output
 Here is the output for test2.txt in the repo in case you were wondering without wanting to have to clone+compile:
 ```
