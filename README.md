@@ -5,7 +5,7 @@ This was my solution to the second major solution of COMP20005 - Engineering Com
   - Stage 1: cannot remember but I believe it may have been just reoutputting the maze in a nicer looking format, and finding the the size of the maze.
   - Stage 2: Highlighting any place in the maze that was reachable from an entry with a "++", and instead using a "--" for any place that was unreachable. Also check, and state whether the maze has a solution. 
   - Stage 3: Check and display the path length counting every 2 squares, ensuring that if a place was reachable in multiple different ways, the *smallest* lenght was used. See below for an example output
-  - Stage 4: Find the shortest path and display it. I can't remember (nor can I be bothered checking) what the Spec stipulated a particular preference in case there were more than one path with the same shortest path length.
+  - Stage 4: Find the shortest path and display it. If there was more than one path then my program would pick the left most path (check the order of the `if` statements in `label_final_path` starting on line 222)
   
 ## Example Output
 Here is the output for test2.txt in the repo in case you were wondering without wanting to have to clone+compile:
